@@ -1,0 +1,16 @@
+{
+  "name": "Morning Tab",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "description": "Morning Tab for Chrome/Firefox/Edge",
+  "chrome_url_overrides" : {
+    "newtab": "tab.html"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "content_security_policy": {
+    "script-src": "self",
+    "object-src": "self"
+  }
+}
