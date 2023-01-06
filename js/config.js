@@ -6,22 +6,14 @@ export const config = {
     stack: 'https://stackoverflow.com/search?q=',
   },
   hot: {
-    all: 'http://v1.hot.isdz.cn/api/hot/list?type=0',
-    item: 'http://v1.hot.isdz.cn/api/hot/item?id=',
+    all: 'http://v1.hot.1zdz.cn/api/hot/list?type=0',
+    item: 'http://v1.hot.1zdz.cn/api/hot/item?id=',
   },
   hitokoto: {
-    api: 'https://v2.alapi.cn/api/hitokoto',
-    params: {
-      format: 'json',
-      token: 'rgjRtLpM6YIzl9L4',
-    }
+    api: 'https://mood.1zdz.cn/api/hig/getHitokoto',
   },
   soul: {
-    api: 'https://v2.alapi.cn/api/soul',
-    params: {
-      format: 'json',
-      token: 'rgjRtLpM6YIzl9L4',
-    }
+    api: 'https://mood.1zdz.cn/api/hig/getSouls',
   },
   coder: [
     {

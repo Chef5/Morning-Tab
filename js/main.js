@@ -1,12 +1,18 @@
 /*
  * @Author: Patrick-Jun 
  * @Date: 2021-07-13 21:35:38 
- * @Last Modified by: Patrick-Jun
- * @Last Modified time: 2021-12-03 21:07:14
+ * @Last Modified by: Chef Wu
+ * @Last Modified time: 2023-01-We 05:26:24
  */
 
 import { config } from './config.js';
 import { time2cn } from './time2cn.js';
+import storage from './storage.js';
+import {
+  storeSearchHistory,
+  getSearchHistory,
+  deleteSearchHistory,
+} from './historyController.js'
 
 // 模式
 const MODES = [
@@ -15,33 +21,38 @@ const MODES = [
 ];
 
 // 搜索
-const doSearch = (type, keyword) => window.location.href = config.href[type] + keyword;
+const doSearch = (type, keyword) => {
+  storeSearchHistory(keyword);
+  window.location.href = config.href[type] + keyword;
+};
 
-// 数据缓存
-const storage = {
-  getItem: (key, fn) => {
-    chrome.storage.local.get([key], (result) => {
-      fn(result[key]);
-    });
-  },
-  setItem: (key, value) => {
-    chrome.storage.local.set({ [key]: value });
-  },
+// 设置透明度
+const setOpacity = (selector, value) => {
+  const el = document.querySelector(selector);
+  if (el) {
+    el.style.opacity = value;
+  }
 };
 
 const vm = new Vue({
   el: '#vue-root', 
   data: {
+    MODES,
     mode: 'coder', // 模式
     keyword: '', // 搜索的词
     // 随机一言\心灵毒鸡汤
     hitokoto: {
       id: '',
-      hitokoto: '', // tips
+      text: 'Hello Dreamers', // tips
       type: '',
       from: '', // from
       creator: '', // author
     },
+
+    // 搜素历史
+    historySetting: false, // 搜索历史设置
+    history: [], // 搜索历史
+    historyMore: false, // 显示更多
 
     // C模式
     coder: config.coder || [],
@@ -92,9 +103,48 @@ const vm = new Vue({
       storage.setItem('mode', mode);
       this.initData();
     },
+    // 显示内容区
+    showBlock: function(selector) {
+      this.$nextTick(() => {
+        setOpacity(selector, 1);
+      });
+    },
+    // 显示历史开关
+    switchHistory: async function() {
+      this.historySetting = !this.historySetting;
+      if (this.historySetting) {
+        this.showBlock('.history');
+      }
+      await storage.setItem('historySetting', this.historySetting);
+    },
+    // 获取历史记录
+    getHistory: async function() {
+      this.history = await getSearchHistory();
+      this.showBlock('.history');
+    },
+    // 显示更多历史
+    toggleHistoryMore: function() {
+      if (this.historyMore) {
+        const el = document.getElementById('history-list');
+        el.scrollTop = 0;
+      }
+      this.historyMore = !this.historyMore;
+    },
+    // 点击历史记录
+    handleHistoryClick: function (item) {
+      this.keyword = item;
+    },
+    // 点击删除历史记录
+    handleHistoryClose: async function (item) {
+      if (!item) {
+        this.historyMore = false;
+      }
+      await deleteSearchHistory(item);
+      this.getHistory();
+    },
     // 获取全部热搜
-    getHotAll: function() {
-      axios.get(config.hot.all)
+    getHotAll: async function() {
+      return axios.get(config.hot.all)
       .then(response => {
         if (response.status === 200 && response.data.data) {
           response.data.data.forEach(item => {
@@ -130,14 +180,15 @@ const vm = new Vue({
             }
           });
           this.showHot = true;
+          this.showBlock('.fish');
         }
       });
     },
     // 获取单个热搜
-    getHotItem: function(id, index) {
+    getHotItem: async function(id, index) {
       this.hot[index].time = 'loading...';
       this.hot[index].data = [];
-      axios.get(config.hot.item + id)
+      return axios.get(config.hot.item + id)
       .then(response => {
         if (response.status === 200 && response.data.data) {
           this.hot[index].time = time2cn(response.data.data.time);
@@ -151,48 +202,51 @@ const vm = new Vue({
       });
     },
     // 获取随机一言
-    getHitokoto: function() {
-      axios.post(config.hitokoto.api, config.hitokoto.params)
+    getHitokoto: async function() {
+      return axios.get(config.hitokoto.api)
       .then(response => {
-        if (response.data.code === 200 && response.data.data) {
+        if (response.data.isSuccess) {
           this.hitokoto = response.data.data;
+          this.showBlock('.topic');
         }
       });
     },
     // 获取毒鸡汤
-    getSoul: function() {
-      axios.post(config.soul.api, config.soul.params)
+    getSoul: async function() {
+      return axios.get(config.soul.api)
       .then(response => {
-        if (response.data.code === 200 && response.data.data) {
-          this.hitokoto = {
-            id: '',
-            hitokoto: response.data.data.content,
-            type: '',
-            from: '心灵毒鸡汤',
-            creator: '',
-          };
+        if (response.data.isSuccess) {
+          this.hitokoto = response.data.data;
+          this.showBlock('.topic');
         }
       });
     },
     // 初始化
-    initData: function() {
+    initData: async function() {
       // 判断模式
-      storage.getItem('mode', (mode) => {
-        this.mode = mode || 'coder';
-        if (this.mode === 'coder') {
-          
-        }
-        if (this.mode === 'fish') {
-          // 获取热搜
-          this.getHotAll();
-        }
-      })
+      const mode = await storage.getItemAsync('mode');
+      this.mode = mode || 'coder';
+      if (this.mode === 'coder') {
+        this.showBlock('.coder');
+      }
+      if (this.mode === 'fish') {
+        // 获取热搜
+        this.getHotAll();
+        this.showBlock('.fish');
+      }
+      this.historySetting = await storage.getItemAsync('historySetting');
+      if (this.historySetting) {
+        this.showBlock('.history');
+      }
     }
   }, 
-  created: function() {
+  created: async function() {
     // 1随机一言 0毒鸡汤
-    Math.round(Math.random()) ? this.getHitokoto() : this.getSoul();
-    this.initData();
+    Math.round(Math.random()) ? await this.getHitokoto() : await this.getSoul();
+    await this.initData();
+    await this.getHistory();
+    this.showBlock('.coder');
+    this.showBlock('.menu');
   },
   mounted: function() {
     

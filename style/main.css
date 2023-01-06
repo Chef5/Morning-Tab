@@ -4,6 +4,13 @@ body {
   font-size: 10px;
   background-color: #18191e;
 }
+html ::-webkit-scrollbar,
+body ::-webkit-scrollbar {
+  width: 0;
+}
+[v-cloak] {
+  display: none;
+}
 /* 浏览器侧边栏 */
 ::-webkit-scrollbar {
   width: 5px;
@@ -46,6 +53,14 @@ body {
 .g-bstack {
   background-color: rgba(244, 128, 36, 0.6);
 }
+@keyframes show {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 #vue-root {
   display: flex;
   flex-direction: column;
@@ -53,6 +68,9 @@ body {
 }
 #vue-root .topic {
   padding: 30px 0;
+  height: 110px;
+  opacity: 0;
+  animation: show 500ms linear;
 }
 #vue-root .topic .tips {
   padding: 0 20px;
@@ -108,11 +126,98 @@ body {
   outline-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.5);
 }
+#vue-root .history {
+  padding: 30px 20px 0;
+  width: 100%;
+  opacity: 0;
+  animation: show 500ms linear;
+}
+#vue-root .history .box {
+  position: relative;
+  margin-bottom: 20px;
+  padding: 10px 10px 0 20px;
+  width: 100%;
+  border-radius: 20px;
+  background-color: #1f2025;
+}
+#vue-root .history .box-list {
+  width: 100%;
+}
+#vue-root .history .box-list.fold {
+  max-height: 68px;
+  overflow: hidden;
+}
+#vue-root .history .box-list.unfold {
+  max-height: 204px;
+  overflow-y: auto;
+}
+#vue-root .history .box-list-item {
+  position: relative;
+  box-sizing: content-box;
+  display: inline-block;
+  margin: 0 10px 10px 0;
+  padding: 5px;
+  height: 14px;
+  line-height: 14px;
+  border-radius: 10px;
+  background-color: #2a2a2a;
+  user-select: none;
+}
+#vue-root .history .box-list-item span {
+  display: inline-block;
+  height: 14px;
+  max-width: 120px;
+  padding-left: 4px;
+  line-height: 14px;
+  font-size: 12px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+#vue-root .history .box-list-item .icon-close {
+  vertical-align: baseline;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+#vue-root .history .box-list-item:hover {
+  background-color: #4a4a4a;
+}
+#vue-root .history .box .clear-all {
+  position: absolute;
+  top: -20px;
+  right: 0;
+  font-size: 12px;
+  color: #3d3d3e;
+  user-select: none;
+  cursor: pointer;
+}
+#vue-root .history .box .icon-more {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  vertical-align: baseline;
+  width: 24px;
+  cursor: pointer;
+}
+#vue-root .history .box ::-webkit-scrollbar {
+  width: 5px;
+}
+#vue-root .history .box:hover ::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: #18191e;
+  transition: background-color 0.5s;
+}
 #vue-root .fish {
   padding: 30px 20px;
   width: 100%;
   display: flex;
   justify-content: space-around;
+  opacity: 0;
+  animation: show 500ms linear;
 }
 #vue-root .fish .box {
   margin-right: 20px;
@@ -205,6 +310,9 @@ body {
   border: 0;
   outline-width: 0;
 }
+#vue-root .fish .box ::-webkit-scrollbar {
+  width: 5px;
+}
 #vue-root .fish .box:hover .refresh {
   visibility: visible;
   transition: visibility 1s;
@@ -219,6 +327,8 @@ body {
   width: 100%;
   display: flex;
   flex-direction: column;
+  opacity: 0;
+  animation: show 500ms linear;
 }
 #vue-root .coder .box {
   position: relative;
@@ -352,6 +462,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  opacity: 0;
+  animation: show 500ms linear;
 }
 #vue-root .menu span {
   display: inline-block;
@@ -373,6 +485,10 @@ body {
   background-color: #000;
   cursor: pointer;
   user-select: none;
+}
+#vue-root .menu .active i {
+  border: 1.8px solid #999;
+  color: #999;
 }
 #vue-root .about {
   position: absolute;

@@ -8,13 +8,12 @@
   <title>Morning Tab</title>
   <link rel="stylesheet" href="style/reset.css">
   <link rel="stylesheet" href="style/main.css">
-
 </head>
 <body>
   <div id="vue-root">
     <!-- 顶部：随机一言 -->
     <div class="topic">
-      <p class="tips" :title="hitokoto.hitokoto || 'Hello Dreamers'">{{ hitokoto.hitokoto || 'Hello Dreamers' }}</p>
+      <p class="tips" :title="hitokoto.text || 'Hello Dreamers'">{{ hitokoto.text || 'Hello Dreamers' }}</p>
       <p class="author">{{ authorInfo || '' }}</p>
     </div>
     <!-- 搜索 -->
@@ -27,6 +26,21 @@
         <span class="g-bstack" @click="search('stack')" tabindex="5">「F4」Stack overflow</span>
       </div>
     </div>
+
+    <!-- 搜索历史 -->
+    <div class="history" v-if="historySetting && history.length > 0">
+      <div class="box">
+        <span class="clear-all" @click="handleHistoryClose()">全部清除</span>
+        <div class="box-list" :class="historyMore ? 'unfold' : 'fold'" id="history-list">
+          <div class="box-list-item" v-for="(index, item) of history" :key="item">
+            <span @click="handleHistoryClick(item)">{{ item }}</span>
+            <img class="icon-close" src="./imgs/icon-close.svg" alt="" @click="handleHistoryClose(item)">
+          </div>
+        </div>
+        <img class="icon-more" :src="historyMore ? './imgs/icon-more-fold.svg' : './imgs/icon-more.svg'" alt="" @click="toggleHistoryMore">
+      </div>
+    </div>
+
     <!-- 热搜 -->
     <div class="fish" v-if="showHot && mode === 'fish'">
       <div class="box" v-for="(index, item) of hot" :key="index">
@@ -70,11 +84,22 @@
 
     <!-- 菜单 -->
     <div class="menu">
-      <span class="menu-coder" title="👨‍💻 Switch to Working Mode" @click="switchMode('coder')">
-        <i>C</i>
+      <span
+        v-for="item of MODES"
+        :class="mode === item.mode ? 'active' : ''"
+        :title="item.tips"
+        :key="item.mode"
+        @click="switchMode(item.mode)"
+      >
+        <i>{{ item.label }}</i>
       </span>
-      <span class="menu-fish" title="🐬 Switch to Fishing Mode" @click="switchMode('fish')">
-        <i>F</i>
+      <span
+        class="menu-history"
+        :class="historySetting ? 'active' : ''"
+        title="🐾 Show search history"
+        @click="switchHistory"
+      >
+        <i>H</i>
       </span>
     </div>
     <!-- 关于 -->
