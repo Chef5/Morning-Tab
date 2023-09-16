@@ -30,15 +30,15 @@
 
 Chrome Web Store:
 
-- 浏览器打开：
+- 浏览器打开：https://chrome.google.com/webstore/detail/morning-tab/bjifdacmkmnljljmodgdbpiodhlnmlec
 
 Firefox ADD-ONS:
 
-- 浏览器打开：
+- 浏览器打开：待发布
 
 Edge Store
 
-- 浏览器打开：
+- 浏览器打开：https://microsoftedge.microsoft.com/addons/detail/paojfdambfmjedabdphhcjnelgdgjhjk
 
 ## 开发/自定义
 
@@ -55,3 +55,4 @@ Edge Store
 - 随机一言：https://www.alapi.cn/
 - 心灵毒鸡汤：https://www.alapi.cn/
 - 热搜：https://momoyu.cc/
+- 单词：https://github.com/skywind3000/ECDICT

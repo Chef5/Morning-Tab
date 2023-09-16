@@ -15,6 +15,9 @@ export const config = {
   soul: {
     api: 'https://mood.1zdz.cn/api/hig/getSouls',
   },
+  words: {
+    api: 'https://mood.1zdz.cn/api/hig/getRandomWords',
+  },
   coder: [
     {
       title: '常用工具',

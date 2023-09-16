@@ -6,15 +6,21 @@
   <meta http-equiv="Access-Control-Allow-Origin" content="*">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Morning Tab</title>
+  <link rel="shortcut icon " type="images/x-icon" href="favicon.ico">
   <link rel="stylesheet" href="style/reset.css">
   <link rel="stylesheet" href="style/main.css">
 </head>
 <body>
   <div id="vue-root">
     <!-- 顶部：随机一言 -->
-    <div class="topic">
+    <div class="topic" v-if="topic === 'hitokoto'">
       <p class="tips" :title="hitokoto.text || 'Hello Dreamers'">{{ hitokoto.text || 'Hello Dreamers' }}</p>
       <p class="author">{{ authorInfo || '' }}</p>
+    </div>
+    <!-- 顶部：随机一单词 -->
+    <div class="topic" v-if="topic === 'words'">
+      <p class="word" :title="phonetic">{{ words.word || 'Hello Dreamers' }}</p>
+      <p class="translation" :title="definition">{{ translation || '' }}</p>
     </div>
     <!-- 搜索 -->
     <div class="search">
@@ -86,10 +92,10 @@
     <div class="menu">
       <span
         v-for="item of MODES"
-        :class="mode === item.mode ? 'active' : ''"
+        :class="mode === item.mode || topic === item.mode ? 'active' : ''"
         :title="item.tips"
         :key="item.mode"
-        @click="switchMode(item.mode)"
+        @click="switchMode(item.key, item.mode)"
       >
         <i>{{ item.label }}</i>
       </span>

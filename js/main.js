@@ -16,8 +16,10 @@ import {
 
 // 模式
 const MODES = [
-  { mode: 'coder', name: '程序员模式', label: 'C', tips: '👨‍💻 Switch to Working Mode' },
-  { mode: 'fish', name: '摸鱼', label: 'F', tips: '🐬 Switch to Fishing Mode' },
+  { key: 'mode', mode: 'coder', name: '程序员模式', label: 'C', tips: '👨‍💻 Switch to Working Mode' },
+  { key: 'mode', mode: 'fish', name: '摸鱼', label: 'F', tips: '🐬 Switch to Fishing Mode' },
+  { key: 'topic', mode: 'hitokoto', name: '随机一言', label: 'T', tips: 'Hitokoto Topic' },
+  { key: 'topic', mode: 'words', name: '随机一词', label: 'W', tips: 'Words Topic' },
 ];
 
 // 搜索
@@ -40,6 +42,7 @@ const vm = new Vue({
     MODES,
     mode: 'coder', // 模式
     keyword: '', // 搜索的词
+    topic: 'words',
     // 随机一言\心灵毒鸡汤
     hitokoto: {
       id: '',
@@ -47,6 +50,12 @@ const vm = new Vue({
       type: '',
       from: '', // from
       creator: '', // author
+    },
+    words: {
+      word: '',
+      phonetic: '',
+      translation: '',
+      definition: '',
     },
 
     // 搜素历史
@@ -92,6 +101,15 @@ const vm = new Vue({
         this.hitokoto.creator ? `by ${this.hitokoto.creator}` : '',
       ].join('');
     },
+    translation: function() {
+      return this.words.translation.replaceAll('\n', '; ')
+    },
+    definition: function() {
+      return this.words.definition.replaceAll('\n', '; ')
+    },
+    phonetic: function() {
+      return this.words.phonetic ? `/ ${this.words.phonetic} /` : ''
+    }
   },
   methods: {
     // 搜索
@@ -99,8 +117,8 @@ const vm = new Vue({
       doSearch(type, this.keyword);
     },
     // 切换模式
-    switchMode: function(mode) {
-      storage.setItem('mode', mode);
+    switchMode: function(key, mode) {
+      storage.setItem(key, mode);
       this.initData();
     },
     // 显示内容区
@@ -207,7 +225,6 @@ const vm = new Vue({
       .then(response => {
         if (response.data.isSuccess) {
           this.hitokoto = response.data.data;
-          this.showBlock('.topic');
         }
       });
     },
@@ -217,7 +234,15 @@ const vm = new Vue({
       .then(response => {
         if (response.data.isSuccess) {
           this.hitokoto = response.data.data;
-          this.showBlock('.topic');
+        }
+      });
+    },
+    // 获取单词
+    getWords: async function() {
+      return axios.get(config.words.api)
+      .then(response => {
+        if (response.data.isSuccess) {
+          this.words = response.data.data;
         }
       });
     },
@@ -225,7 +250,9 @@ const vm = new Vue({
     initData: async function() {
       // 判断模式
       const mode = await storage.getItemAsync('mode');
+      const topic = await storage.getItemAsync('topic');
       this.mode = mode || 'coder';
+      this.topic = topic || 'hitokoto';
       if (this.mode === 'coder') {
         this.showBlock('.coder');
       }
@@ -238,11 +265,18 @@ const vm = new Vue({
       if (this.historySetting) {
         this.showBlock('.history');
       }
+      if (this.topic === 'hitokoto') {
+        // 1随机一言 0毒鸡汤
+        Math.round(Math.random()) ? await this.getHitokoto() : await this.getSoul();
+        this.showBlock('.topic');
+      }
+      if (this.topic === 'words') {
+        await this.getWords();
+        this.showBlock('.topic');
+      }
     }
   }, 
   created: async function() {
-    // 1随机一言 0毒鸡汤
-    Math.round(Math.random()) ? await this.getHitokoto() : await this.getSoul();
     await this.initData();
     await this.getHistory();
     this.showBlock('.coder');
